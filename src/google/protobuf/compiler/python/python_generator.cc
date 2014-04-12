@@ -139,6 +139,34 @@ void PrintTopBoilerplate(
       "from google.protobuf import message as _message\n"
       "from google.protobuf import reflection as _reflection\n"
       );
+
+   // import all the relevant python version-specific defs
+  printer->Print(
+	  "import sys\n"
+      "if sys.version_info >= (3,):\n"
+      "  #some constants that are python2 only\n"
+      "  unicode = str\n"
+      "  long = int\n"
+      "  range = range\n"
+      "  unichr = chr\n"
+      "  def b(s):\n"
+      "    return s.encode(\"latin-1\")\n"
+      "  def u(s):\n"
+      "    return s\n"
+      "else:\n"
+      "  #some constants that are python2 only\n"
+      "  range = xrange\n"
+      "  unicode = unicode\n"
+      "  long = long\n"
+      "  unichr = unichr\n"
+      "  def b(s):\n"
+      "    return s\n"
+      "  # Workaround for standalone backslash\n"
+      "  def u(s):\n"
+      "    return unicode(s.replace(r'\\\\', r'\\\\\\\\'), \"unicode_escape\")\n"
+	  "\n"
+  );
+
   if (HasGenericServices(file)) {
     printer->Print(
         "from google.protobuf import service as _service\n"
@@ -183,15 +211,11 @@ string StringifyDefaultValue(const FieldDescriptor& field) {
     case FieldDescriptor::CPPTYPE_DOUBLE: {
       double value = field.default_value_double();
       if (value == numeric_limits<double>::infinity()) {
-        // Python pre-2.6 on Windows does not parse "inf" correctly.  However,
-        // a numeric literal that is too big for a double will become infinity.
-        return "1e10000";
+        return "float(\"inf\")";
       } else if (value == -numeric_limits<double>::infinity()) {
-        // See above.
-        return "-1e10000";
+        return "float(\"-inf\")";
       } else if (value != value) {
-        // infinity * 0 = nan
-        return "(1e10000 * 0)";
+        return "float(\"nan\")";
       } else {
         return SimpleDtoa(value);
       }
@@ -199,15 +223,11 @@ string StringifyDefaultValue(const FieldDescriptor& field) {
     case FieldDescriptor::CPPTYPE_FLOAT: {
       float value = field.default_value_float();
       if (value == numeric_limits<float>::infinity()) {
-        // Python pre-2.6 on Windows does not parse "inf" correctly.  However,
-        // a numeric literal that is too big for a double will become infinity.
-        return "1e10000";
+        return "float(\"inf\")";
       } else if (value == -numeric_limits<float>::infinity()) {
-        // See above.
-        return "-1e10000";
+        return "float(\"-inf\")";
       } else if (value != value) {
-        // infinity - infinity = nan
-        return "(1e10000 * 0)";
+        return "float(\"nan\")";
       } else {
         return SimpleFtoa(value);
       }
@@ -218,10 +238,10 @@ string StringifyDefaultValue(const FieldDescriptor& field) {
       return SimpleItoa(field.default_value_enum()->number());
     case FieldDescriptor::CPPTYPE_STRING:
       if (field.type() == FieldDescriptor::TYPE_STRING) {
-        return "unicode(\"" + CEscape(field.default_value_string()) +
-                        "\", \"utf-8\")";
+        return "unicode(b(\"" + CEscape(field.default_value_string()) +
+                        "\"), \"utf-8\")";
       } else {
-        return "\"" + CEscape(field.default_value_string()) + "\"";
+        return "b(\"" + CEscape(field.default_value_string()) + "\")";
       }
       case FieldDescriptor::CPPTYPE_MESSAGE:
           return "None";
@@ -232,6 +252,14 @@ string StringifyDefaultValue(const FieldDescriptor& field) {
   return "";
 }
 
+const char RELATIVE_IMPORT[] = \
+"try:\n" \
+"    from . import $module$\n"\
+"except ImportError: \n"
+"    import $module$\n";
+
+const char ABSOLUTE_IMPORT[] = \
+"import $module$\n";
 
 
 }  // namespace
@@ -304,8 +332,10 @@ bool Generator::Generate(const FileDescriptor* file,
 void Generator::PrintImports() const {
   for (int i = 0; i < file_->dependency_count(); ++i) {
     string module_name = ModuleName(file_->dependency(i)->name());
-    printer_->Print("import $module$\n", "module",
-                    module_name);
+    if (module_name.find('.') != string::npos)
+      printer_->Print(ABSOLUTE_IMPORT, "module", module_name);
+    else
+      printer_->Print(RELATIVE_IMPORT, "module", module_name);
   }
   printer_->Print("\n");
 
@@ -330,7 +360,7 @@ void Generator::PrintFileDescriptor() const {
   printer_->Print(m, file_descriptor_template);
   printer_->Indent();
   printer_->Print(
-      "serialized_pb='$value$'",
+      "serialized_pb=b('$value$')",
       "value", strings::CHexEscape(file_descriptor_serialized_));
 
   // TODO(falk): Also print options and fix the message_type, enum_type,
@@ -520,30 +550,21 @@ void Generator::PrintServiceDescriptor(
   printer_->Print("])\n\n");
 }
 
+// Thanks to http://mikewatkins.ca/2008/11/29/python-2-and-3-metaclasses/
 void Generator::PrintServiceClass(const ServiceDescriptor& descriptor) const {
   // Print the service.
-  printer_->Print("class $class_name$(_service.Service):\n",
-                  "class_name", descriptor.name());
-  printer_->Indent();
-  printer_->Print(
-      "__metaclass__ = service_reflection.GeneratedServiceType\n"
-      "$descriptor_key$ = $descriptor_name$\n",
-      "descriptor_key", kDescriptorKey,
-      "descriptor_name", ModuleLevelServiceDescriptorName(descriptor));
-  printer_->Outdent();
+	printer_->Print("$class_name$=service_reflection.GeneratedServiceType('$class_name$',(_service.Service,),{'$descriptor_key$' : $descriptor_name$})\n",
+                  "class_name", descriptor.name(),
+									"descriptor_key", kDescriptorKey,
+									"descriptor_name", ModuleLevelServiceDescriptorName(descriptor));
 }
 
 void Generator::PrintServiceStub(const ServiceDescriptor& descriptor) const {
   // Print the service stub.
-  printer_->Print("class $class_name$_Stub($class_name$):\n",
-                  "class_name", descriptor.name());
-  printer_->Indent();
-  printer_->Print(
-      "__metaclass__ = service_reflection.GeneratedServiceStubType\n"
-      "$descriptor_key$ = $descriptor_name$\n",
-      "descriptor_key", kDescriptorKey,
-      "descriptor_name", ModuleLevelServiceDescriptorName(descriptor));
-  printer_->Outdent();
+	printer_->Print("$class_name$_Stub=service_reflection.GeneratedServiceStubType('$class_name$_Stub',($class_name$,),{'$descriptor_key$' : $descriptor_name$})\n",
+                  "class_name", descriptor.name(),
+									"descriptor_key", kDescriptorKey,
+									"descriptor_name", ModuleLevelServiceDescriptorName(descriptor));
 }
 
 // Prints statement assigning ModuleLevelDescriptorName(message_descriptor)
@@ -640,6 +661,8 @@ void Generator::PrintMessages() const {
   }
 }
 
+static const char colon[] = ":";
+
 // Prints a Python class for the given message descriptor.  We defer to the
 // metaclass to do almost all of the work of actually creating a useful class.
 // The purpose of this function and its many helper functions above is merely
@@ -647,23 +670,36 @@ void Generator::PrintMessages() const {
 // reflection.py will use to construct the meat of the class itself.
 //
 // Mutually recursive with PrintNestedMessages().
-void Generator::PrintMessage(
-    const Descriptor& message_descriptor) const {
-  printer_->Print("class $name$(_message.Message):\n", "name",
-                  message_descriptor.name());
+void Generator::PrintMessage(const Descriptor& message_descriptor, const char* assign) const {
+  if (assign == colon){
+    printer_->Print("'$name$'$assign$ _reflection.GeneratedProtocolMessageType('$name$', (_message.Message,),\n",
+                  "name", message_descriptor.name(), "assign", assign);
+  } else {
+    printer_->Print("$name$ $assign$ _reflection.GeneratedProtocolMessageType('$name$', (_message.Message,),\n",
+                  "name", message_descriptor.name(), "assign", assign);
+  }
   printer_->Indent();
-  printer_->Print("__metaclass__ = _reflection.GeneratedProtocolMessageType\n");
-  PrintNestedMessages(message_descriptor);
+  printer_->Indent();
+  printer_->Print("{\n");
+  printer_->Indent();
   map<string, string> m;
   m["descriptor_key"] = kDescriptorKey;
   m["descriptor_name"] = ModuleLevelDescriptorName(message_descriptor);
-  printer_->Print(m, "$descriptor_key$ = $descriptor_name$\n");
+  printer_->Print(m, "'$descriptor_key$': $descriptor_name$,\n");
+  PrintNestedMessages(message_descriptor);
 
+  // TODO:I'm not sure what this is for, but it's at the end of the class dict
   printer_->Print(
-    "\n"
     "# @@protoc_insertion_point(class_scope:$full_name$)\n",
     "full_name", message_descriptor.full_name());
 
+  printer_->Outdent();
+  if (assign == colon){
+    printer_->Print("}),\n");
+  } else {
+    printer_->Print("})\n");
+  }
+  printer_->Outdent();
   printer_->Outdent();
 }
 
@@ -672,8 +708,7 @@ void Generator::PrintMessage(
 void Generator::PrintNestedMessages(
     const Descriptor& containing_descriptor) const {
   for (int i = 0; i < containing_descriptor.nested_type_count(); ++i) {
-    printer_->Print("\n");
-    PrintMessage(*containing_descriptor.nested_type(i));
+    PrintMessage(*containing_descriptor.nested_type(i), colon);
   }
 }
 
@@ -875,8 +910,8 @@ string Generator::OptionsValue(
     return "None";
   } else {
     string full_class_name = "descriptor_pb2." + class_name;
-    return "_descriptor._ParseOptions(" + full_class_name + "(), '"
-        + CEscape(serialized_options)+ "')";
+    return "_descriptor._ParseOptions(" + full_class_name + "(), b('"
+        + CEscape(serialized_options)+ "'))";
   }
 }
 

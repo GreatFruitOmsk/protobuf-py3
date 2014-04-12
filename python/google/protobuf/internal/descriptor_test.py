@@ -41,11 +41,12 @@ from google.protobuf import unittest_pb2
 from google.protobuf import descriptor_pb2
 from google.protobuf import descriptor
 from google.protobuf import text_format
+from google.protobuf.internal.utils import b
 
 
-TEST_EMPTY_MESSAGE_DESCRIPTOR_ASCII = """
+TEST_EMPTY_MESSAGE_DESCRIPTOR_ASCII = b("""
 name: 'TestEmptyMessage'
-"""
+""")
 
 
 class DescriptorTest(unittest.TestCase):
@@ -244,7 +245,7 @@ class DescriptorTest(unittest.TestCase):
         unittest_custom_options_pb2.double_opt])
     self.assertEqual("Hello, \"World\"", message_options.Extensions[
         unittest_custom_options_pb2.string_opt])
-    self.assertEqual("Hello\0World", message_options.Extensions[
+    self.assertEqual(b("Hello\0World"), message_options.Extensions[
         unittest_custom_options_pb2.bytes_opt])
     dummy_enum = unittest_custom_options_pb2.DummyMessageContainingEnum
     self.assertEqual(
@@ -421,7 +422,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         TEST_EMPTY_MESSAGE_DESCRIPTOR_ASCII)
 
   def testCopyToProto_NestedMessage(self):
-    TEST_NESTED_MESSAGE_ASCII = """
+    TEST_NESTED_MESSAGE_ASCII = b("""
       name: 'NestedMessage'
       field: <
         name: 'bb'
@@ -429,7 +430,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         label: 1  # Optional
         type: 5  # TYPE_INT32
       >
-      """
+      """)
 
     self._InternalTestCopyToProto(
         unittest_pb2.TestAllTypes.NestedMessage.DESCRIPTOR,
@@ -437,7 +438,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         TEST_NESTED_MESSAGE_ASCII)
 
   def testCopyToProto_ForeignNestedMessage(self):
-    TEST_FOREIGN_NESTED_ASCII = """
+    TEST_FOREIGN_NESTED_ASCII = b("""
       name: 'TestForeignNested'
       field: <
         name: 'foreign_nested'
@@ -446,7 +447,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         type: 11  # TYPE_MESSAGE
         type_name: '.protobuf_unittest.TestAllTypes.NestedMessage'
       >
-      """
+      """)
 
     self._InternalTestCopyToProto(
         unittest_pb2.TestForeignNested.DESCRIPTOR,
@@ -454,7 +455,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         TEST_FOREIGN_NESTED_ASCII)
 
   def testCopyToProto_ForeignEnum(self):
-    TEST_FOREIGN_ENUM_ASCII = """
+    TEST_FOREIGN_ENUM_ASCII = b("""
       name: 'ForeignEnum'
       value: <
         name: 'FOREIGN_FOO'
@@ -468,7 +469,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         name: 'FOREIGN_BAZ'
         number: 6
       >
-      """
+      """)
 
     self._InternalTestCopyToProto(
         unittest_pb2._FOREIGNENUM,
@@ -476,7 +477,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         TEST_FOREIGN_ENUM_ASCII)
 
   def testCopyToProto_Options(self):
-    TEST_DEPRECATED_FIELDS_ASCII = """
+    TEST_DEPRECATED_FIELDS_ASCII = b("""
       name: 'TestDeprecatedFields'
       field: <
         name: 'deprecated_int32'
@@ -487,7 +488,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
           deprecated: true
         >
       >
-      """
+      """)
 
     self._InternalTestCopyToProto(
         unittest_pb2.TestDeprecatedFields.DESCRIPTOR,
@@ -495,13 +496,13 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         TEST_DEPRECATED_FIELDS_ASCII)
 
   def testCopyToProto_AllExtensions(self):
-    TEST_EMPTY_MESSAGE_WITH_EXTENSIONS_ASCII = """
+    TEST_EMPTY_MESSAGE_WITH_EXTENSIONS_ASCII = b("""
       name: 'TestEmptyMessageWithExtensions'
       extension_range: <
         start: 1
         end: 536870912
       >
-      """
+      """)
 
     self._InternalTestCopyToProto(
         unittest_pb2.TestEmptyMessageWithExtensions.DESCRIPTOR,
@@ -509,7 +510,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         TEST_EMPTY_MESSAGE_WITH_EXTENSIONS_ASCII)
 
   def testCopyToProto_SeveralExtensions(self):
-    TEST_MESSAGE_WITH_SEVERAL_EXTENSIONS_ASCII = """
+    TEST_MESSAGE_WITH_SEVERAL_EXTENSIONS_ASCII = b("""
       name: 'TestMultipleExtensionRanges'
       extension_range: <
         start: 42
@@ -523,7 +524,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         start: 65536
         end: 536870912
       >
-      """
+      """)
 
     self._InternalTestCopyToProto(
         unittest_pb2.TestMultipleExtensionRanges.DESCRIPTOR,
@@ -531,7 +532,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         TEST_MESSAGE_WITH_SEVERAL_EXTENSIONS_ASCII)
 
   def testCopyToProto_FileDescriptor(self):
-    UNITTEST_IMPORT_FILE_DESCRIPTOR_ASCII = ("""
+    UNITTEST_IMPORT_FILE_DESCRIPTOR_ASCII = (b("""
       name: 'google/protobuf/unittest_import.proto'
       package: 'protobuf_unittest_import'
       dependency: 'google/protobuf/unittest_import_public.proto'
@@ -544,8 +545,8 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
           type: 5  # TYPE_INT32
         >
       >
-      """ +
-      """enum_type: <
+      """) +
+      b("""enum_type: <
         name: 'ImportEnum'
         value: <
           name: 'IMPORT_FOO'
@@ -565,7 +566,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         optimize_for: 1  # SPEED
       >
       public_dependency: 0
-      """)
+      """))
 
     self._InternalTestCopyToProto(
         unittest_import_pb2.DESCRIPTOR,
@@ -573,7 +574,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         UNITTEST_IMPORT_FILE_DESCRIPTOR_ASCII)
 
   def testCopyToProto_ServiceDescriptor(self):
-    TEST_SERVICE_ASCII = """
+    TEST_SERVICE_ASCII = b("""
       name: 'TestService'
       method: <
         name: 'Foo'
@@ -585,7 +586,7 @@ class DescriptorCopyToProtoTest(unittest.TestCase):
         input_type: '.protobuf_unittest.BarRequest'
         output_type: '.protobuf_unittest.BarResponse'
       >
-      """
+      """)
 
     self._InternalTestCopyToProto(
         unittest_pb2.TestService.DESCRIPTOR,

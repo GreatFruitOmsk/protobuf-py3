@@ -55,14 +55,19 @@ from google.protobuf.internal import api_implementation
 from google.protobuf.internal import test_util
 from google.protobuf import message
 
-# Python pre-2.6 does not have isinf() or isnan() functions, so we have
-# to provide our own.
-def isnan(val):
-  # NaN is never equal to itself.
-  return val != val
-def isinf(val):
-  # Infinity times zero equals NaN.
-  return not isnan(val) and isnan(val * 0)
+from google.protobuf.internal.utils import cmp
+
+try:
+  from math import isnan, isinf
+except ImportError:
+  #Python pre-2.6 does not have isinf() or isnan() functions, so we have
+  # to provide our own.
+  def isnan(val):
+    # NaN is never equal to itself.
+    return val != val
+  def isinf(val):
+    # Infinity times zero equals NaN.
+    return not isnan(val) and isnan(val * 0)
 def IsPosInf(val):
   return isinf(val) and (val > 0)
 def IsNegInf(val):
@@ -85,7 +90,7 @@ class MessageTest(unittest.TestCase):
     golden_message.ParseFromString(golden_data)
     all_set = unittest_pb2.TestAllExtensions()
     test_util.SetAllExtensions(all_set)
-    self.assertEquals(all_set, golden_message)
+    self.assertEqual(all_set, golden_message)
     self.assertEqual(golden_data, golden_message.SerializeToString())
     golden_copy = copy.deepcopy(golden_message)
     self.assertEqual(golden_data, golden_copy.SerializeToString())
@@ -96,7 +101,7 @@ class MessageTest(unittest.TestCase):
     golden_message.ParseFromString(golden_data)
     all_set = unittest_pb2.TestPackedTypes()
     test_util.SetAllPackedFields(all_set)
-    self.assertEquals(all_set, golden_message)
+    self.assertEqual(all_set, golden_message)
     self.assertEqual(golden_data, all_set.SerializeToString())
     golden_copy = copy.deepcopy(golden_message)
     self.assertEqual(golden_data, golden_copy.SerializeToString())
@@ -107,7 +112,7 @@ class MessageTest(unittest.TestCase):
     golden_message.ParseFromString(golden_data)
     all_set = unittest_pb2.TestPackedExtensions()
     test_util.SetAllPackedExtensions(all_set)
-    self.assertEquals(all_set, golden_message)
+    self.assertEqual(all_set, golden_message)
     self.assertEqual(golden_data, all_set.SerializeToString())
     golden_copy = copy.deepcopy(golden_message)
     self.assertEqual(golden_data, golden_copy.SerializeToString())

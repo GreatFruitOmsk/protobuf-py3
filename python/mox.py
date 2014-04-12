@@ -66,6 +66,8 @@ import unittest
 
 import stubout
 
+exec(open('google/protobuf/internal/utils.py').read())
+
 class Error(AssertionError):
   """Base exception for this module."""
 
@@ -778,7 +780,7 @@ class Comparator:
       rhs: any python object
     """
 
-    raise NotImplementedError, 'method must be implemented by a subclass.'
+    raise NotImplementedError('method must be implemented by a subclass.')
 
   def __eq__(self, rhs):
     return self.equals(rhs)
@@ -1310,7 +1312,7 @@ class MultipleTimesGroup(MethodGroup):
         return self, method
 
     if self.IsSatisfied():
-      next_method = mock_method._PopNextMethod();
+      next_method = mock_method._PopNextMethod()
       return next_method, None
     else:
       raise UnexpectedMethodCallError(mock_method, self)

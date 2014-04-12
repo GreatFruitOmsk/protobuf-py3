@@ -5,12 +5,14 @@ import sys
 import os
 import subprocess
 
+
 # We must use setuptools, not distutils, because we need to use the
 # namespace_packages option for the "google" package.
 try:
   from setuptools import setup, Extension
 except ImportError:
   try:
+    sys.stderr.write("running ez_setup\n")
     from ez_setup import use_setuptools
     use_setuptools()
     from setuptools import setup, Extension
@@ -22,6 +24,8 @@ except ImportError:
 from distutils.command.clean import clean as _clean
 from distutils.command.build_py import build_py as _build_py
 from distutils.spawn import find_executable
+
+exec(open('google/protobuf/internal/utils.py').read())
 
 maintainer_email = "protobuf@googlegroups.com"
 
@@ -36,6 +40,10 @@ elif os.path.exists("../vsprojects/Debug/protoc.exe"):
   protoc = "../vsprojects/Debug/protoc.exe"
 elif os.path.exists("../vsprojects/Release/protoc.exe"):
   protoc = "../vsprojects/Release/protoc.exe"
+elif os.path.exists("../../msvc2012/lib/64/Debug/protoc.exe"):
+  protoc = "../../msvc2012/lib/64/Debug/protoc.exe"
+elif os.path.exists("../../msvc2012/lib/64/Release/protoc.exe"):
+  protoc = "../../msvc2012/lib/64/Release/protoc.exe"
 else:
   protoc = find_executable("protoc")
 
@@ -49,7 +57,7 @@ def generate_proto(source):
   if (not os.path.exists(output) or
       (os.path.exists(source) and
        os.path.getmtime(source) > os.path.getmtime(output))):
-    print "Generating %s..." % output
+    print_("Generating %s..." % output)
 
     if not os.path.exists(source):
       sys.stderr.write("Can't find required file: %s\n" % source)
@@ -145,7 +153,7 @@ if __name__ == '__main__':
 
   # C++ implementation extension
   if os.getenv("PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION", "python") == "cpp":
-    print "Using EXPERIMENTAL C++ Implmenetation."
+    print_("Using EXPERIMENTAL C++ Implmenetation.")
     ext_module_list.append(Extension(
         "google.protobuf.internal._net_proto2___python",
         [ "google/protobuf/pyext/python_descriptor.cc",
@@ -170,6 +178,7 @@ if __name__ == '__main__':
           'google.protobuf.internal.message_listener',
           'google.protobuf.internal.python_message',
           'google.protobuf.internal.type_checkers',
+          'google.protobuf.internal.utils',
           'google.protobuf.internal.wire_format',
           'google.protobuf.descriptor',
           'google.protobuf.descriptor_pb2',

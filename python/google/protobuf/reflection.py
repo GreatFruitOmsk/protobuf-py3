@@ -85,9 +85,7 @@ class GeneratedProtocolMessageType(type):
   classes at runtime, as in this example:
 
   mydescriptor = Descriptor(.....)
-  class MyProtoClass(Message):
-    __metaclass__ = GeneratedProtocolMessageType
-    DESCRIPTOR = mydescriptor
+  MyProtoClass=GeneratedProtocolMessageType(str('MyProtoClass'),(Message,),{'DESCRIPTOR':mydescriptor})
   myproto_instance = MyProtoClass()
   myproto.foo_field = 23
   ...
@@ -159,11 +157,7 @@ def ParseMessage(descriptor, byte_str):
   Returns:
     Newly created protobuf Message object.
   """
-
-  class _ResultClass(message.Message):
-    __metaclass__ = GeneratedProtocolMessageType
-    DESCRIPTOR = descriptor
-
+  _ResultClass=GeneratedProtocolMessageType(str('_ResultClass'),(message.Message,),{'DESCRIPTOR':descriptor})
   new_msg = _ResultClass()
   new_msg.ParseFromString(byte_str)
   return new_msg

@@ -52,9 +52,7 @@ class GeneratedServiceType(type):
   runtime, as in this example:
 
   mydescriptor = ServiceDescriptor(.....)
-  class MyProtoService(service.Service):
-    __metaclass__ = GeneratedServiceType
-    DESCRIPTOR = mydescriptor
+  MyProtoService=GeneratedServiceType('MyProtoService',(service.Service,),{'DESCRIPTOR':mydescriptor})
   myservice_instance = MyProtoService()
   ...
   """

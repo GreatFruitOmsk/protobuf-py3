@@ -35,6 +35,7 @@ __author__ = 'robinson@google.com (Will Robinson)'
 import struct
 from google.protobuf import descriptor
 from google.protobuf import message
+from google.protobuf.internal.utils import string_to_bytes, b
 
 
 TAG_TYPE_BITS = 3  # Number of bits used to hold type info in a proto tag.
@@ -63,10 +64,10 @@ INT64_MIN = -(1 << 63)
 UINT64_MAX = (1 << 64) - 1
 
 # "struct" format strings that will encode/decode the specified formats.
-FORMAT_UINT32_LITTLE_ENDIAN = '<I'
-FORMAT_UINT64_LITTLE_ENDIAN = '<Q'
-FORMAT_FLOAT_LITTLE_ENDIAN = '<f'
-FORMAT_DOUBLE_LITTLE_ENDIAN = '<d'
+FORMAT_UINT32_LITTLE_ENDIAN = b('<I')
+FORMAT_UINT64_LITTLE_ENDIAN = b('<Q')
+FORMAT_FLOAT_LITTLE_ENDIAN = b('<f')
+FORMAT_DOUBLE_LITTLE_ENDIAN = b('<d')
 
 
 # We'll have to provide alternate implementations of AppendLittleEndian*() on
@@ -181,7 +182,7 @@ def EnumByteSize(field_number, enum):
 
 
 def StringByteSize(field_number, string):
-  return BytesByteSize(field_number, string.encode('utf-8'))
+  return BytesByteSize(field_number, string_to_bytes(string))
 
 
 def BytesByteSize(field_number, b):
