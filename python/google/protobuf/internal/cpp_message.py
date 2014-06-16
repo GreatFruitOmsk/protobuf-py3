@@ -35,26 +35,26 @@ Descriptor objects at runtime backed by the protocol buffer C++ API.
 __author__ = 'petar@google.com (Petar Petrov)'
 
 import operator
+
 from google.protobuf.internal import _net_proto2___python
 from google.protobuf.internal.utils import cmp
 from google.protobuf.internal import enum_type_wrapper
 from google.protobuf import message
-from google.internal.utils import bytestr_to_string
+from google.protobuf.internal.utils import bytestr_to_string, PY2
 
-import sys
-if sys.version > '3':
+if PY2:
+  import copy_reg
+  def is_sequence(other):
+    return operator.isSequenceType(other)
+  def copy_reg_pickle(type, function):
+    return copy_reg.pickle(type,function)
+else:
   import collections
   import copyreg
   def is_sequence(other):
     return isinstance(other, collections.Sequence)
   def copy_reg_pickle(type, function):
     return copyreg.pickle(type,function)
-else:
-	import copy_reg
-  def is_sequence(other):
-    return operator.isSequenceType(other)
-	def copy_reg_pickle(type, function):
-	  return copy_reg.pickle(type,function)
 
 _LABEL_REPEATED = _net_proto2___python.LABEL_REPEATED
 _LABEL_OPTIONAL = _net_proto2___python.LABEL_OPTIONAL
