@@ -36,6 +36,7 @@ from google.protobuf import descriptor_database
 from google.protobuf import descriptor_pool
 from google.protobuf import message
 from google.protobuf import reflection
+from google.protobuf.internal.utils import PY2
 
 
 class MessageFactory(object):
@@ -60,7 +61,7 @@ class MessageFactory(object):
 
     if descriptor.full_name not in self._classes:
       result_class = reflection.GeneratedProtocolMessageType(
-          descriptor.name.encode('ascii', 'ignore'),
+          descriptor.name.encode('ascii', 'ignore') if PY2 else descriptor.name,
           (message.Message,),
           {'DESCRIPTOR': descriptor})
       self._classes[descriptor.full_name] = result_class
