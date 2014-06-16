@@ -166,8 +166,8 @@ if __name__ == '__main__':
         include_dirs = [ "." ],
         libraries = [ "protobuf" ]))
 
-  setup(name = 'protobuf',
-        version = '2.5.1-pre',
+  setup(name = 'protobuf-py3',
+        version = '2.5.1',
         packages = [ 'google' ],
         namespace_packages = [ 'google' ],
         test_suite = 'setup.MakeTestSuite',
@@ -198,11 +198,11 @@ if __name__ == '__main__':
         cmdclass = { 'clean': clean, 'build_py': build_py },
         install_requires = ['setuptools'],
         ext_modules = ext_module_list,
-        url = 'http://code.google.com/p/protobuf/',
+        url = 'https://github.com/GreatFruitOmsk/protobuf-py3',
         maintainer = maintainer_email,
-        maintainer_email = 'protobuf@googlegroups.com',
+        maintainer_email = 'kulakov.ilya@gmail.com',
         license = 'New BSD License',
         description = 'Protocol Buffers',
         long_description =
-          "Protocol Buffers are Google's data interchange format.",
+          "Unofficial version of Google Protocol Buffers that provides support for Python 3.",
         )

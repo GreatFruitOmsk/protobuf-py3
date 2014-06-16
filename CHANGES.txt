@@ -1,3 +1,20 @@
+2014-06-15 version 2.5.1:
+
+  General
+  * This fork is now diverged from one provided by Google in the sense that
+    versioning is different.
+    However it still can be used as a drop-in replacement since it will support
+    all the feature of the most recent official release.
+    This fork should be considered deprecated once Google provide compatibility
+    with Python 3 in the official repository.
+  * Apply change r524 from the official repo
+  * Apply change r525 from the official repo
+
+  Python
+  * Fixed bug where the module sys is used without being imported
+  * Fixed bug where type is encoded into bytes in Python 3 while it should be
+    a string.
+
 2013-02-27 version 2.5.0:
 
   General

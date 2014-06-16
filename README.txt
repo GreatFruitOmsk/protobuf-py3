@@ -1,13 +1,17 @@
 Fork Notes
 ==========
-This fork is based on the revision r523 of the official repository which is porotbuf 2.5.0 + additional fixes to support the ARM64 architecture.
+This fork brings Python 3 support to Google Protocol Buffers.
+It's diverged version and versioning is incompatible with the official one.
 
-The sole idea is to have protobuf 2.5.0 runnable under python 3. To achive this, changes was made both to python code generator and python module.
+The fork should be considered deprecated once Google provide compatibility
+with Python 3 in the official repository.
 
-This changes are based on the patch posted by Kirill Bogdanov (https://groups.google.com/d/msg/protobuf/Qalty-PenDA/dC6jPMjYvq4J). We excluded all win32 related changes from the patch, since they are irrelevant for our goal.
+Most changes are based on the patch posted by Kirill Bogdanov (https://groups.google.com/d/msg/protobuf/Qalty-PenDA/dC6jPMjYvq4J). Excluding all win32 related changes from the patch, since they are irrelevant for our goal.
 
-The changes are independent from https://github.com/openx/python3-protobuf which is based on 2.4.1
+The fork is independent from https://github.com/openx/python3-protobuf which is based on 2.4.1
 
+Unlike the official repository, I'm glad to accept and release any bugfixes that are stuck due to
+annoying release policy used by Google.
 
 
 Protocol Buffers - Google's data interchange format
