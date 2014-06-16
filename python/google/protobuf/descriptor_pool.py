@@ -53,6 +53,8 @@ decoded.
 
 __author__ = 'matthewtoia@google.com (Matt Toia)'
 
+import sys
+
 from google.protobuf import descriptor_pb2
 from google.protobuf import descriptor
 from google.protobuf import descriptor_database
