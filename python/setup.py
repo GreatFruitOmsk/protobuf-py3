@@ -118,7 +118,11 @@ def MakeTestSuite():
                 reflection_test,
                 service_reflection_test,
                 text_format_test,
-                wire_format_test ]:
+                wire_format_test,
+                unknown_fields_test,
+                descriptor_database_test,
+                descriptor_pool_test,
+                message_factory_test ]:
     suite.addTest(loader.loadTestsFromModule(test))
 
   return suite

@@ -35,6 +35,7 @@
 __author__ = 'matthewtoia@google.com (Matt Toia)'
 
 import unittest
+
 from google.protobuf import descriptor_pb2
 from google.protobuf.internal import factory_test1_pb2
 from google.protobuf.internal import factory_test2_pb2
@@ -81,9 +82,9 @@ class MessageFactoryTest(unittest.TestCase):
     serialized = msg.SerializeToString()
     converted = factory_test2_pb2.Factory2Message.FromString(serialized)
     reserialized = converted.SerializeToString()
-    self.assertEquals(serialized, reserialized)
+    self.assertEqual(serialized, reserialized)
     result = cls.FromString(reserialized)
-    self.assertEquals(msg, result)
+    self.assertEqual(msg, result)
 
   def testGetPrototype(self):
     db = descriptor_database.DescriptorDatabase()
@@ -92,22 +93,20 @@ class MessageFactoryTest(unittest.TestCase):
     db.Add(self.factory_test2_fd)
     factory = message_factory.MessageFactory()
     cls = factory.GetPrototype(pool.FindMessageTypeByName(
-        'net.proto2.python.internal.Factory2Message'))
+        'google.protobuf.python.internal.Factory2Message'))
     self.assertIsNot(cls, factory_test2_pb2.Factory2Message)
     self._ExerciseDynamicClass(cls)
     cls2 = factory.GetPrototype(pool.FindMessageTypeByName(
-        'net.proto2.python.internal.Factory2Message'))
+        'google.protobuf.python.internal.Factory2Message'))
     self.assertIs(cls, cls2)
 
   def testGetMessages(self):
     messages = message_factory.GetMessages([self.factory_test2_fd,
                                             self.factory_test1_fd])
-    self.assertContainsSubset(
-        ['net.proto2.python.internal.Factory2Message',
-         'net.proto2.python.internal.Factory1Message'],
-        messages.keys())
+    self.assertTrue('google.protobuf.python.internal.Factory2Message' in messages.keys())
+    self.assertTrue('google.protobuf.python.internal.Factory2Message' in messages.keys())
     self._ExerciseDynamicClass(
-        messages['net.proto2.python.internal.Factory2Message'])
+        messages['google.protobuf.python.internal.Factory2Message'])
 
 if __name__ == '__main__':
   unittest.main()

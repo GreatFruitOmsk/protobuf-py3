@@ -48,16 +48,16 @@ class DescriptorDatabaseTest(unittest.TestCase):
         factory_test2_pb2.DESCRIPTOR.serialized_pb)
     db.Add(file_desc_proto)
 
-    self.assertEquals(file_desc_proto, db.FindFileByName(
-        'net/proto2/python/internal/factory_test2.proto'))
-    self.assertEquals(file_desc_proto, db.FindFileContainingSymbol(
-        'net.proto2.python.internal.Factory2Message'))
-    self.assertEquals(file_desc_proto, db.FindFileContainingSymbol(
-        'net.proto2.python.internal.Factory2Message.NestedFactory2Message'))
-    self.assertEquals(file_desc_proto, db.FindFileContainingSymbol(
-        'net.proto2.python.internal.Factory2Enum'))
-    self.assertEquals(file_desc_proto, db.FindFileContainingSymbol(
-        'net.proto2.python.internal.Factory2Message.NestedFactory2Enum'))
+    self.assertEqual(file_desc_proto, db.FindFileByName(
+        'google/protobuf/internal/factory_test2.proto'))
+    self.assertEqual(file_desc_proto, db.FindFileContainingSymbol(
+        'google.protobuf.python.internal.Factory2Message'))
+    self.assertEqual(file_desc_proto, db.FindFileContainingSymbol(
+        'google.protobuf.python.internal.Factory2Message.NestedFactory2Message'))
+    self.assertEqual(file_desc_proto, db.FindFileContainingSymbol(
+        'google.protobuf.python.internal.Factory2Enum'))
+    self.assertEqual(file_desc_proto, db.FindFileContainingSymbol(
+        'google.protobuf.python.internal.Factory2Message.NestedFactory2Enum'))
 
 if __name__ == '__main__':
   unittest.main()

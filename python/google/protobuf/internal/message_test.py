@@ -124,15 +124,15 @@ class MessageTest(unittest.TestCase):
     pickled_message = pickle.dumps(golden_message)
 
     unpickled_message = pickle.loads(pickled_message)
-    self.assertEquals(unpickled_message, golden_message)
+    self.assertEqual(unpickled_message, golden_message)
 
   def testPickleIncompleteProto(self):
     golden_message = unittest_pb2.TestRequired(a=1)
     pickled_message = pickle.dumps(golden_message)
 
     unpickled_message = pickle.loads(pickled_message)
-    self.assertEquals(unpickled_message, golden_message)
-    self.assertEquals(unpickled_message.a, 1)
+    self.assertEqual(unpickled_message, golden_message)
+    self.assertEqual(unpickled_message.a, 1)
     # This is still an incomplete proto - so serializing should fail
     self.assertRaises(message.EncodeError, unpickled_message.SerializeToString)
 
