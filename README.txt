@@ -24,6 +24,7 @@ C++ Installation - Unix
 To build and install the C++ Protocol Buffer runtime and the Protocol
 Buffer compiler (protoc) execute the following:
 
+  $ ./autogen.sh
   $ ./configure
   $ make
   $ make check
