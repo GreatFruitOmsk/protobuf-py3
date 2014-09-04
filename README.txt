@@ -1,3 +1,7 @@
+Google claims that protobuf 2.6.0 supports Python 3.
+You're encouraged to switch to the official repo.
+
+
 Fork Notes
 ==========
 This fork brings Python 3 support to Google Protocol Buffers.
