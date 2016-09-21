@@ -1,3 +1,8 @@
+2016-09-21 version 2.5.2:
+
+  General
+  * Fixed invalid link to gtest in autogen.sh
+
 2014-06-15 version 2.5.1:
 
   General

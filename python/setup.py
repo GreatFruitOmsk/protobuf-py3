@@ -167,7 +167,7 @@ if __name__ == '__main__':
         libraries = [ "protobuf" ]))
 
   setup(name = 'protobuf-py3',
-        version = '2.5.1',
+        version = '2.5.2',
         packages = [ 'google' ],
         namespace_packages = [ 'google' ],
         test_suite = 'setup.MakeTestSuite',
