@@ -1,6 +1,4 @@
-~~Google claims that protobuf 2.6.0 supports Python 3.~~ 
-~~You're encouraged to switch to the official repo.~~
-Turns out it doesn't. +1 https://github.com/google/protobuf/pull/66
+Google protobuf 3.x.x supports Python 3 natively
 
 
 
