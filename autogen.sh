@@ -19,7 +19,7 @@ fi
 # directory is set up as an SVN external.
 if test ! -e gtest; then
   echo "Google Test not present.  Fetching gtest-1.5.0 from the web..."
-  curl https://github.com/google/googletest/archive/release-1.5.0.tar.gz | tar zx
+  curl -L https://github.com/google/googletest/archive/release-1.5.0.tar.gz | tar zx
   mv googletest-release-1.5.0 gtest
 fi
 
